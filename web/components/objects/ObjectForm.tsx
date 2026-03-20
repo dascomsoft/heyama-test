@@ -1,4 +1,3 @@
-// components/objects/ObjectForm.tsx
 'use client';
 
 import { useState } from 'react';
@@ -8,9 +7,10 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 
-const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-const UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+// Variables d'environnement avec fallback
+const CLOUD_NAME = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || '';
+const UPLOAD_PRESET = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || '';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 export default function ObjectForm() {
   const router = useRouter();
@@ -35,7 +35,15 @@ export default function ObjectForm() {
     }
   };
 
+  // Fonction pour uploader l'image vers Cloudinary
   const uploadImageToCloudinary = async (file: File): Promise<string | null> => {
+    // Vérification des credentials
+    if (!CLOUD_NAME || !UPLOAD_PRESET) {
+      console.error('Cloudinary credentials missing');
+      alert('Configuration Cloudinary manquante');
+      return null;
+    }
+
     setUploading(true);
     
     const formData = new FormData();
@@ -54,10 +62,18 @@ export default function ObjectForm() {
 
       const data = await response.json();
       setUploading(false);
-      return data.secure_url;
+      
+      if (response.ok) {
+        return data.secure_url;
+      } else {
+        console.error('Cloudinary error:', data.error);
+        alert('Erreur lors de l\'upload');
+        return null;
+      }
     } catch (error) {
-      console.error('Erreur upload:', error);
+      console.error('Upload error:', error);
       setUploading(false);
+      alert('Erreur de connexion à Cloudinary');
       return null;
     }
   };
@@ -73,7 +89,6 @@ export default function ObjectForm() {
         if (uploadedUrl) {
           imageUrl = uploadedUrl;
         } else {
-          alert("Erreur lors de l'upload de l'image");
           setLoading(false);
           return;
         }
@@ -97,9 +112,11 @@ export default function ObjectForm() {
         router.push(`/objects/${result.data._id}`);
         router.refresh();
       } else {
+        console.error('Erreur création:', result.message);
         alert('Erreur lors de la création');
       }
     } catch (error) {
+      console.error('Erreur:', error);
       alert('Erreur de connexion');
     } finally {
       setLoading(false);
@@ -114,30 +131,38 @@ export default function ObjectForm() {
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <label htmlFor="title" className="text-sm font-medium">Titre</label>
+            <label htmlFor="title" className="text-sm font-medium">
+              Titre
+            </label>
             <Input
               id="title"
               required
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              placeholder="Ex: Ma super chaise"
               disabled={loading || uploading}
             />
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="description" className="text-sm font-medium">Description</label>
+            <label htmlFor="description" className="text-sm font-medium">
+              Description
+            </label>
             <Textarea
               id="description"
               required
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              placeholder="Décris ton objet..."
               disabled={loading || uploading}
               rows={4}
             />
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="image" className="text-sm font-medium">Image</label>
+            <label htmlFor="image" className="text-sm font-medium">
+              Image
+            </label>
             <Input
               id="image"
               type="file"
@@ -146,22 +171,33 @@ export default function ObjectForm() {
               disabled={loading || uploading}
             />
             
-            {uploading && <p className="text-sm text-blue-500">Upload en cours...</p>}
+            {uploading && (
+              <p className="text-sm text-blue-500">Upload en cours...</p>
+            )}
             
             {preview && (
               <div className="mt-4">
                 <p className="text-sm text-gray-500 mb-2">Aperçu :</p>
-                <img src={preview} alt="Aperçu" className="max-w-full h-48 object-cover rounded-md border" />
+                <img 
+                  src={preview} 
+                  alt="Aperçu" 
+                  className="max-w-full h-48 object-cover rounded-md border"
+                />
               </div>
             )}
           </div>
         </CardContent>
 
         <CardFooter className="flex justify-between">
-          <Button  className='bg-slate-900 p-3 text-white'   type="button"  onClick={() => router.back()} disabled={loading || uploading}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => router.back()}
+            disabled={loading || uploading}
+          >
             Annuler
           </Button>
-          <Button className='bg-slate-900 p-3 text-white' type="submit" disabled={loading || uploading}>
+          <Button type="submit" disabled={loading || uploading}>
             {loading || uploading ? 'Traitement...' : 'Créer'}
           </Button>
         </CardFooter>

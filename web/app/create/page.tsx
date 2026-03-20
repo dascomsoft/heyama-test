@@ -1,7 +1,6 @@
-// app/create/page.tsx
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import ObjectForm from '@/components/objects/ObjectForm';
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import ObjectForm from '../../components/objects/ObjectForm'
 
 export default function CreatePage() {
   return (
@@ -14,5 +13,5 @@ export default function CreatePage() {
       </div>
       <ObjectForm />
     </div>
-  );
+  )
 }
