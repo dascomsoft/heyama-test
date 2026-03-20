@@ -1,4 +1,3 @@
-// app/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -7,12 +6,14 @@ import { Button } from '@/components/ui/button';
 import { Object } from '@/lib/types';
 import ObjectList from '@/components/objects/ObjectList';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 export default function HomePage() {
   const [objects, setObjects] = useState<Object[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:3001/objects')
+    fetch(`${API_URL}/objects`)
       .then(res => res.json())
       .then(response => {
         if (response.success && Array.isArray(response.data)) {
@@ -22,19 +23,14 @@ export default function HomePage() {
         }
         setLoading(false);
       })
-      .catch(err => {
-        console.error('Erreur API:', err);
+      .catch(() => {
         setObjects([]);
         setLoading(false);
       });
   }, []);
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <p className="text-gray-500">Chargement...</p>
-      </div>
-    );
+    return <div className="flex justify-center items-center min-h-[400px]">Chargement...</div>;
   }
 
   return (
@@ -42,7 +38,7 @@ export default function HomePage() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Mes Objets</h1>
         <Link href="/create">
-          <Button>Créer un objet</Button>
+          <Button className='bg-slate-900 p-3 text-white'>Créer un objet</Button>
         </Link>
       </div>
       <ObjectList objects={objects} />

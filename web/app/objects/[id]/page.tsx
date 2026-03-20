@@ -1,4 +1,3 @@
-// app/objects/[id]/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -8,24 +7,21 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Object } from '@/lib/types';
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 export default function ObjectDetailPage() {
   const { id } = useParams();
   const router = useRouter();
   const [object, setObject] = useState<Object | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // ✅ Vérifie que l'ID est valide
   useEffect(() => {
     if (!id || id === 'undefined') {
       router.push('/');
       return;
     }
-  }, [id, router]);
-
-  useEffect(() => {
-    if (!id || id === 'undefined') return;
     
-    fetch(`http://localhost:3001/objects/${id}`)
+    fetch(`${API_URL}/objects/${id}`)
       .then(res => res.json())
       .then(response => {
         if (response.success && response.data) {
@@ -35,24 +31,20 @@ export default function ObjectDetailPage() {
         }
         setLoading(false);
       })
-      .catch(err => {
-        console.error('Erreur API:', err);
+      .catch(() => {
         setObject(null);
         setLoading(false);
       });
-  }, [id]);
+  }, [id, router]);
 
   const handleDelete = async () => {
     if (confirm('Supprimer cet objet ?')) {
       try {
-        const response = await fetch(`http://localhost:3001/objects/${id}`, {
+        await fetch(`${API_URL}/objects/${id}`, {
           method: 'DELETE',
         });
-        
-        if (response.ok) {
-          router.push('/');
-          router.refresh();
-        }
+        router.push('/');
+        router.refresh();
       } catch (error) {
         console.error('Erreur suppression:', error);
       }
@@ -60,11 +52,7 @@ export default function ObjectDetailPage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <p className="text-gray-500">Chargement...</p>
-      </div>
-    );
+    return <div className="flex justify-center items-center min-h-[400px]">Chargement...</div>;
   }
 
   if (!object) {
@@ -93,11 +81,7 @@ export default function ObjectDetailPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           {object.imageUrl ? (
-            <img 
-              src={object.imageUrl} 
-              alt={object.title}
-              className="w-full h-96 object-cover rounded-lg"
-            />
+            <img src={object.imageUrl} alt={object.title} className="w-full h-96 object-cover rounded-lg" />
           ) : (
             <div className="w-full h-96 bg-gray-100 rounded-lg flex items-center justify-center">
               <span className="text-gray-400">Pas d'image</span>
@@ -114,10 +98,7 @@ export default function ObjectDetailPage() {
           </div>
 
           <div className="pt-4 flex justify-end">
-            <Button 
-              variant="destructive" 
-              onClick={handleDelete}
-            >
+            <Button className='bg-slate-900 p-3 text-white' variant="destructive" onClick={handleDelete}>
               Supprimer
             </Button>
           </div>
