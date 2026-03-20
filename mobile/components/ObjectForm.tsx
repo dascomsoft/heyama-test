@@ -1,4 +1,4 @@
-// mobile/components/ObjectForm.tsx (version alternative)
+// mobile/components/ObjectForm.tsx
 import React, { useState } from 'react';
 import {
   View,
@@ -45,16 +45,13 @@ export default function ObjectForm() {
     }
   };
 
-  // Version simplifiée : envoie l'URI directement avec fetch
   const uploadImageToCloudinary = async (uri: string): Promise<string | null> => {
     setUploading(true);
 
     try {
-      // Récupère le fichier en blob via fetch
       const response = await fetch(uri);
       const blob = await response.blob();
-      
-      // Crée le FormData
+
       const formData = new FormData();
       formData.append('file', blob, 'upload.jpg');
       formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
@@ -87,48 +84,55 @@ export default function ObjectForm() {
     }
   };
 
-  const handleSubmit = async () => {
-    if (!formData.title || !formData.description) {
-      Alert.alert('Erreur', 'Veuillez remplir tous les champs');
-      return;
-    }
 
-    setLoading(true);
 
-    try {
-      let imageUrl = '';
-      
-      if (imageUri) {
-        const uploadedUrl = await uploadImageToCloudinary(imageUri);
-        if (uploadedUrl) {
-          imageUrl = uploadedUrl;
-        } else {
-          setLoading(false);
-          return;
-        }
-      }
+const handleSubmit = async () => {
+  if (!formData.title || !formData.description) {
+    Alert.alert('Erreur', 'Veuillez remplir tous les champs');
+    return;
+  }
 
-      const response = await objectApi.create({
-        title: formData.title,
-        description: formData.description,
-        imageUrl,
-      });
+  setLoading(true);
 
-      if (response.success) {
-        Alert.alert('Succès', 'Objet créé avec succès', [
-          { text: 'OK', onPress: () => router.back() }
-        ]);
+  try {
+    let imageUrl = '';
+    
+    if (imageUri) {
+      const uploadedUrl = await uploadImageToCloudinary(imageUri);
+      if (uploadedUrl) {
+        imageUrl = uploadedUrl;
       } else {
-        Alert.alert('Erreur', 'Erreur lors de la création');
+        setLoading(false);
+        return;
       }
-    } catch (error) {
-      console.error('Erreur:', error);
-      Alert.alert('Erreur', 'Impossible de contacter le serveur');
-    } finally {
-      setLoading(false);
     }
-  };
 
+    const response = await objectApi.create({
+      title: formData.title,
+      description: formData.description,
+      imageUrl,
+    });
+
+    if (response.success) {
+      Alert.alert('Succès', 'Objet créé avec succès', [
+        { 
+          text: 'OK', 
+          onPress: () => {
+            // ✅ Redirige vers l'onglet Accueil (tabs)
+            router.push('/(tabs)');
+          }
+        }
+      ]);
+    } else {
+      Alert.alert('Erreur', response.message || 'Erreur lors de la création');
+    }
+  } catch (error) {
+    console.error('Erreur:', error);
+    Alert.alert('Erreur', 'Impossible de contacter le serveur');
+  } finally {
+    setLoading(false);
+  }
+};
   return (
     <ScrollView style={styles.container}>
       <View style={styles.form}>

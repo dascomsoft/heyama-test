@@ -39,44 +39,43 @@ export default function DetailScreen() {
       }
     } catch (error) {
       console.error('Erreur fetch:', error);
-      Alert.alert('Erreur', 'Impossible de charger l\'objet');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDelete = () => {
-    Alert.alert(
-      'Confirmation',
-      'Voulez-vous vraiment supprimer cet objet ?',
-      [
-        { text: 'Annuler', style: 'cancel' },
-        {
-          text: 'Supprimer',
-          onPress: async () => {
-            try {
-              const response = await fetch(`${API_URL}/objects/${id}`, {
-                method: 'DELETE',
-              });
-              const result = await response.json();
-              
-              if (result.success) {
-                Alert.alert('Succès', 'Objet supprimé', [
-                  { text: 'OK', onPress: () => router.back() }
-                ]);
-              } else {
-                Alert.alert('Erreur', result.message || 'Suppression impossible');
-              }
-            } catch (error) {
-              console.error('Erreur delete:', error);
-              Alert.alert('Erreur', 'Problème de connexion');
-            }
-          },
-          style: 'destructive',
+const handleDelete = () => {
+  Alert.alert(
+    'Confirmation',
+    'Supprimer cet objet ?',
+    [
+      { text: 'Annuler', style: 'cancel' },
+      {
+        text: 'Supprimer',
+        onPress: async () => {
+          console.log('=== DÉBUT SUPPRESSION ===');
+          console.log('ID à supprimer:', id);
+          console.log('URL:', `${API_URL}/objects/${id}`);
+          
+          try {
+            const response = await fetch(`${API_URL}/objects/${id}`, {
+              method: 'DELETE',
+            });
+            console.log('Statut réponse:', response.status);
+            console.log('=== FIN SUPPRESSION ===');
+            
+            // Redirection forcée
+            router.replace('/(tabs)');
+          } catch (error) {
+            console.error('ERREUR:', error);
+            Alert.alert('Erreur', 'Problème de connexion');
+          }
         },
-      ]
-    );
-  };
+        style: 'destructive',
+      },
+    ]
+  );
+};
 
   if (loading) {
     return (

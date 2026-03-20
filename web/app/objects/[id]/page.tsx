@@ -20,7 +20,7 @@ export default function ObjectDetailPage() {
       router.push('/');
       return;
     }
-    
+
     fetch(`${API_URL}/objects/${id}`)
       .then(res => res.json())
       .then(response => {
@@ -87,12 +87,12 @@ export default function ObjectDetailPage() {
               <span className="text-gray-400">Pas d'image</span>
             </div>
           )}
-          
+
           <div>
             <h3 className="font-semibold mb-2">Description</h3>
             <p className="text-gray-600">{object.description}</p>
           </div>
-          
+
           <div className="text-sm text-gray-400">
             Créé le {new Date(object.createdAt).toLocaleDateString()}
           </div>
