@@ -9,11 +9,30 @@ Le projet est divisé en deux parties principales :
 
 - **/api** : Backend NestJS avec MongoDB
 - **/web** : Frontend Next.js avec shadcn/ui
+- **/mobile** : Application mobile React Native avec Expo (en développement)
 
 ## Choix techniques
 
 ### Frontend - Next.js
 J'ai choisi Next.js car je suis à l'aise avec React et que Next.js offre une structure claire pour organiser les pages et les composants. L'utilisation de shadcn/ui m'a permis d'avoir des composants accessibles sans perdre de temps sur le design, ce qui n'était pas la priorité du test.
+
+
+### Application Mobile - React Native / Expo
+Pour la partie mobile, j'ai choisi React Native avec Expo pour plusieurs raisons :
+- Je peux réutiliser ma connaissance de React
+- Expo simplifie le développement et les tests sur appareil réel
+- Le code partage la même logique métier que la version web
+- Développement rapide sans configuration complexe
+
+L'application mobile est actuellement en cours de développement. Elle reprend les mêmes fonctionnalités que la version web :
+- Liste des objets
+- Création d'objets
+- Détail des objets
+- Communication avec la même API
+
+
+
+
 
 ### Backend - NestJS
 N'ayant pas d'expérience approfondie avec NestJS avant ce test, j'ai découvert cette technologie pendant le développement. NestJS propose une architecture modulaire et structurée qui facilite l'organisation du code backend.
